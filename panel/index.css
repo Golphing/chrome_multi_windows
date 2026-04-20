@@ -1,0 +1,248 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #c8d0e0;
+  background: #1e2130;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app { display: flex; height: 100vh; }
+
+/* ── Sidebar ── */
+#sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #181b2a;
+  border-right: 1px solid #252840;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 14px 12px;
+  color: #6870a0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.sidebar-icon { font-size: 15px; }
+.sidebar-title { flex: 1; }
+
+#btn-new-space {
+  background: none; border: none;
+  color: #6870a0; font-size: 20px;
+  cursor: pointer; line-height: 1;
+  padding: 1px 3px; border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+#btn-new-space:hover { color: #c8d0e0; background: #252840; }
+
+#spaces-list {
+  flex: 1; overflow-y: auto; list-style: none;
+  scrollbar-width: thin; scrollbar-color: #252840 transparent;
+}
+
+.space-item {
+  display: flex; align-items: center;
+  padding: 11px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background .1s;
+  gap: 8px;
+  user-select: none;
+}
+.space-item:hover { background: #1e2238; }
+.space-item.active {
+  background: #1e2238;
+  border-left-color: #6366f1;
+  color: #fff;
+}
+
+.space-dot { font-size: 7px; color: #363c60; flex-shrink: 0; }
+.space-item.online .space-dot { color: #48bb78; }
+.space-item.active .space-dot { color: #6366f1; }
+
+.space-name {
+  flex: 1; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+  font-size: 13px; color: #a0a8c8;
+}
+.space-item.active .space-name { color: #fff; }
+
+.space-actions {
+  display: flex; gap: 2px;
+  opacity: 0; transition: opacity .1s; flex-shrink: 0;
+}
+.space-item:hover .space-actions { opacity: 1; }
+
+.spc-btn {
+  background: none; border: none; cursor: pointer;
+  color: #6870a0; font-size: 12px;
+  padding: 2px 4px; border-radius: 3px; line-height: 1;
+  transition: color .1s, background .1s;
+}
+.spc-btn:hover { color: #c8d0e0; background: #2e3450; }
+.spc-btn.del:hover { color: #fc8181; }
+
+/* ── New space form ── */
+#new-space-form {
+  padding: 10px 12px;
+  border-top: 1px solid #252840;
+  flex-shrink: 0;
+}
+#new-space-form.hidden { display: none; }
+#new-space-input {
+  width: 100%; padding: 6px 8px;
+  border-radius: 5px; border: 1px solid #353a58;
+  background: #1e2238; color: #c8d0e0;
+  font-size: 12px; outline: none; margin-bottom: 7px;
+}
+#new-space-input:focus { border-color: #6366f1; }
+.form-actions { display: flex; gap: 6px; }
+.form-actions button {
+  flex: 1; padding: 5px; border-radius: 5px;
+  border: none; cursor: pointer; font-size: 12px;
+}
+#btn-confirm { background: #6366f1; color: #fff; }
+#btn-confirm:hover { background: #4f52c9; }
+#btn-cancel { background: #252840; color: #c8d0e0; }
+#btn-cancel:hover { background: #353a58; }
+
+/* ── Content ── */
+#content {
+  flex: 1; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: #252840 transparent;
+}
+
+.hint {
+  text-align: center; color: #353a58;
+  margin-top: 80px; font-size: 13px;
+}
+
+#space-detail.hidden { display: none; }
+
+section { border-bottom: 1px solid #252840; padding-bottom: 4px; }
+
+.section-title {
+  padding: 12px 16px 6px;
+  font-size: 11px; font-weight: 600;
+  color: #505880; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.empty-hint { padding: 6px 16px; font-size: 12px; color: #404870; }
+.empty-hint.hidden { display: none; }
+
+ul { list-style: none; }
+
+.list-item {
+  display: flex; align-items: center;
+  gap: 8px; padding: 7px 16px;
+  cursor: pointer; transition: background .1s;
+}
+.list-item:hover { background: #1e2238; }
+
+.list-item img.favicon {
+  width: 14px; height: 14px; flex-shrink: 0; border-radius: 2px;
+}
+.favicon-fallback {
+  width: 14px; height: 14px; font-size: 11px;
+  line-height: 14px; text-align: center; flex-shrink: 0;
+}
+
+.item-title {
+  flex: 1; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+  font-size: 12px; color: #9098c0;
+}
+
+.item-actions {
+  display: flex; gap: 2px;
+  opacity: 0; transition: opacity .1s; flex-shrink: 0;
+}
+.list-item:hover .item-actions { opacity: 1; }
+
+.action-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 13px; padding: 2px 3px;
+  border-radius: 3px; color: #505880;
+  line-height: 1; transition: color .1s, background .1s;
+}
+.action-btn:hover { background: #2e3450; color: #c8d0e0; }
+.action-btn.bookmarked { color: #f6ad55; }
+.action-btn.remove-btn:hover { color: #fc8181; }
+
+.hidden { display: none !important; }
+
+/* ── Current space indicator (sidebar bottom) ── */
+#current-space-indicator {
+  padding: 8px 12px;
+  border-top: 1px solid #2a2f45;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#current-space-indicator::before {
+  content: '◈';
+  font-size: 11px;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+#current-space-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6366f1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Bookmark name modal ── */
+#bookmark-name-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+#bookmark-name-dialog {
+  background: #1e2130;
+  border: 1px solid #3a3f58;
+  border-radius: 8px;
+  padding: 14px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dialog-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7880a0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+#bookmark-name-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 5px;
+  border: 1px solid #3a3f58;
+  background: #242840;
+  color: #c8d0e0;
+  font-size: 12px;
+  outline: none;
+}
+#bookmark-name-input:focus { border-color: #6366f1; }

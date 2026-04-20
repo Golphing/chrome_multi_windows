@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Workspace Manager - By WindManager",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwbmegXEQ6CQq/SBNJZnpEhn6opywGdW9k2g7GkpVC+hED9yXstxop3GH9Ml3vcaZAnbzaB1jIPths2hB0JjEmLFUCvr1gWeWLm9Np6uuXm+D/PZJMSHwxXKCifFvjSz9y+AJLHYF8pKCIiRM1BphEOQoAAXUN11OuNSmKOGRSqtYgncy25k8YmkwRgWXYuEU7FGD68cPufnO1GUNUolYD0qVIYPLzE/mlmsO736HSB6QViNKM/4GQYmcfKqRZdHduLvh2pHkB5G1UvRszaZy3RB46Yh402cYpgxoJoXMbDh57HeiTuOegdXqitPfFOHQWKYX5Uf5DnbhmHStOs6eTQIDAQAB",
+  "version": "1.0.0",
+  "description": "Manage named workspaces, each bound to a Chrome window with auto tab sync.",
+  "permissions": [
+    "tabs",
+    "storage",
+    "windows"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Tab Workspace Manager - By WindManager",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

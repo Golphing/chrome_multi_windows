@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tab Workspace Manager</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Left sidebar -->
+    <nav id="sidebar">
+      <div id="sidebar-header">
+        <span class="sidebar-icon">▣</span>
+        <span class="sidebar-title">Spaces</span>
+        <button id="btn-new-space" title="新建 Space">＋</button>
+      </div>
+      <ul id="spaces-list"></ul>
+
+      <!-- Current space indicator -->
+      <div id="current-space-indicator" class="hidden">
+        <span id="current-space-label"></span>
+      </div>
+
+      <div id="new-space-form" class="hidden">
+        <input id="new-space-input" type="text" placeholder="Space 名称" maxlength="30" />
+        <div class="form-actions">
+          <button id="btn-confirm">确认</button>
+          <button id="btn-cancel">取消</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Right content -->
+    <main id="content">
+      <div id="no-space-hint" class="hint">选择或创建一个 Space</div>
+
+      <div id="space-detail" class="hidden">
+        <section id="section-bookmarks">
+          <div class="section-title">⭐ 收藏</div>
+          <ul id="bookmark-list"></ul>
+          <div id="bookmark-empty" class="empty-hint hidden">暂无收藏，从下方 Tabs 点 ★ 添加</div>
+        </section>
+
+        <section id="section-tabs">
+          <div class="section-title">📑 当前 Tabs</div>
+          <ul id="tab-list"></ul>
+          <div id="tabs-empty" class="empty-hint hidden">暂无 Tabs</div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="index.js" type="module"></script>
+
+  <!-- Bookmark name editor modal -->
+  <div id="bookmark-name-modal" class="hidden">
+    <div id="bookmark-name-dialog">
+      <div class="dialog-title">收藏名称</div>
+      <input id="bookmark-name-input" type="text" maxlength="60" />
+      <div class="form-actions">
+        <button id="btn-bookmark-name-confirm">确认</button>
+        <button id="btn-bookmark-name-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
