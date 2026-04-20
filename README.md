@@ -1,56 +1,50 @@
 # Tab Workspace Manager
 
-A Chrome extension that organizes browser tabs into named Spaces, each bound to its own window.
+一个 Chrome 扩展，将浏览器标签页组织成命名的 Space，每个 Space 绑定独立的浏览器窗口。
 
-![Chrome](https://img.shields.io/badge/Chrome-Extension-4a6fa5?logo=googlechrome)
+![Chrome](https://img.shields.io/badge/Chrome-扩展程序-4a6fa5?logo=googlechrome)
 
-## Features
+## 功能特性
 
-- **Named Spaces** — create workspaces with custom names (e.g. "SDD", "稳定性", "离线开发")
-- **One window per Space** — each Space opens and manages its own Chrome window
-- **Auto tab sync** — tabs are automatically saved when you open, close, or navigate
-- **Bookmarks** — pin important URLs to a Space so they persist independently of open tabs
-- **Pinned panel tab** — a dedicated panel tab is always the first tab in each Space window, showing the Space favicon (colored initial) and name in Dock
-- **Dynamic favicon** — the panel tab icon shows the Space's initial letter with a unique color, making it easy to identify in the Dock right-click menu
+- **命名 Space** — 创建自定义名称的工作空间（如「SDD」「稳定性」「离线开发」）
+- **一个 Space 一个窗口** — 每个 Space 拥有独立的 Chrome 窗口
+- **标签页自动同步** — 打开、关闭、导航时标签页自动保存
+- **收藏夹** — 将重要 URL 收藏到 Space，独立于当前打开的标签页持久保存
+- **固定面板标签** — 每个 Space 窗口第一个标签始终是面板页，显示 Space 名称和专属图标
+- **动态图标** — 面板标签图标显示 Space 首字母及专属颜色，在 Dock 右键菜单中一眼识别
 
-## Screenshots
+## 安装方法
 
-| Sidebar | Dock menu |
-|--------|-----------|
-| Light theme, Space list with online indicator | Window title shows Space name |
+1. 克隆本仓库
+2. 打开 `chrome://extensions`
+3. 开启右上角**开发者模式**
+4. 点击**加载已解压的扩展程序**，选择项目文件夹
 
-## Installation
+## 使用方式
 
-1. Clone this repo
-2. Open `chrome://extensions`
-3. Enable **Developer mode**
-4. Click **Load unpacked** and select the project folder
+1. 在任意窗口点击扩展图标，打开面板标签页
+2. 点击 **＋** 创建新 Space
+3. 点击 Space 名称，切换到（或打开）该 Space 的窗口
+4. 在「当前 Tabs」区域，点击 **★** 收藏标签，点击 **✕** 关闭标签
+5. 点击收藏的 URL，在该 Space 窗口中打开
 
-## Usage
-
-1. Click the extension icon in any window to open the panel tab
-2. Click **＋** to create a new Space
-3. Click a Space name to switch to (or open) that Space's window
-4. In the Tabs section, click **★** to bookmark a tab, **✕** to close it
-5. Click a bookmarked URL to open it in the Space's window
-
-## Project Structure
+## 项目结构
 
 ```
 ├── background/
-│   ├── service-worker.js   # Core logic: space activation, tab sync, message handling
-│   ├── storage.js          # Space CRUD via chrome.storage.local
-│   └── windowMap.js        # Window↔Space mapping via chrome.storage.session
+│   ├── service-worker.js   # 核心逻辑：Space 激活、标签同步、消息处理
+│   ├── storage.js          # Space 增删改查，使用 chrome.storage.local
+│   └── windowMap.js        # 窗口↔Space 映射，使用 chrome.storage.session
 ├── panel/
-│   ├── index.html          # Panel UI entry point
-│   ├── index.js            # Panel rendering and event handling
-│   └── index.css           # Light theme styles
-├── icons/                  # Extension icons
+│   ├── index.html          # 面板页入口
+│   ├── index.js            # 面板渲染与事件处理
+│   └── index.css           # 浅色主题样式
+├── icons/                  # 扩展图标
 └── manifest.json
 ```
 
-## Tech Notes
+## 技术说明
 
-- Uses `chrome.storage.session` for window mapping (cleared on browser restart — Spaces return to suspended state)
-- Uses `chrome.storage.local` for persistent Space and bookmark data
-- Panel tab is always pinned and filtered out of the tab list display
+- 窗口映射使用 `chrome.storage.session` 存储，浏览器重启后清空，Space 回到未激活状态
+- Space 数据和收藏夹使用 `chrome.storage.local` 持久存储
+- 面板标签页始终固定（pinned）且不计入标签列表展示
