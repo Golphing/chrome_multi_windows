@@ -82,9 +82,6 @@ async function activateSpace(spaceId) {
   if (existingWindowId !== null) {
     try {
       await chrome.windows.update(existingWindowId, { focused: true });
-      // focus the panel tab
-      const [panelTab] = await chrome.tabs.query({ windowId: existingWindowId, url: getPanelUrl() });
-      if (panelTab) await chrome.tabs.update(panelTab.id, { active: true });
       return;
     } catch (e) {
       console.log('[activateSpace] existingWindow failed, removing mapping', e);
@@ -95,7 +92,6 @@ async function activateSpace(spaceId) {
   const space = await getSpace(spaceId);
   if (!space) return;
 
-  // panel tab is always first
   const panelUrl = getPanelUrl();
   const restoreUrls = space.tabs.length > 0
     ? space.tabs.map(t => t.url)
@@ -104,14 +100,16 @@ async function activateSpace(spaceId) {
   const win = await chrome.windows.create({ url: panelUrl, focused: true });
   await setWindowMapping(win.id, spaceId);
 
-  // open saved tabs after panel
   for (const url of restoreUrls) {
     await chrome.tabs.create({ windowId: win.id, url, active: false });
   }
 
-  // pin panel tab
+  // pin panel tab and activate the first content tab
   const [panelTab] = await chrome.tabs.query({ windowId: win.id, url: panelUrl });
   if (panelTab) await chrome.tabs.update(panelTab.id, { pinned: true });
+
+  const [firstContentTab] = await chrome.tabs.query({ windowId: win.id, pinned: false });
+  if (firstContentTab) await chrome.tabs.update(firstContentTab.id, { active: true });
 
   await syncWindowTabs(win.id);
   notifyPanel({ type: 'SPACE_ACTIVATED', spaceId, windowId: win.id });

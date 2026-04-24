@@ -16,6 +16,15 @@ async function init() {
   await refreshState();
   state.currentSpaceId = state.windowMap[String(state.myWindowId)] || null;
 
+  if (!state.currentSpaceId) {
+    const { lastSpaceId } = await chrome.storage.local.get('lastSpaceId');
+    if (lastSpaceId && state.spaces.some(s => s.id === lastSpaceId)) {
+      state.currentSpaceId = lastSpaceId;
+    } else if (state.spaces.length > 0) {
+      state.currentSpaceId = state.spaces[state.spaces.length - 1].id;
+    }
+  }
+
   render();
   bindEvents();
   bindBookmarkNameModal();
@@ -252,17 +261,21 @@ function bindEvents() {
       const space = state.spaces.find(s => s.id === spaceId);
       if (!space || !confirm(`删除 Space "${space.name}"？`)) return;
       await sendMsgOnce({ type: 'DELETE_SPACE', spaceId });
-      if (state.currentSpaceId === spaceId) state.currentSpaceId = null;
+      if (state.currentSpaceId === spaceId) {
+        state.currentSpaceId = null;
+        chrome.storage.local.remove('lastSpaceId').catch(() => {});
+      }
       await refreshState();
       render();
       return;
     }
     const item = e.target.closest('.space-item');
     if (!item) return;
-    await sendMsgOnce({ type: 'ACTIVATE_SPACE', spaceId: item.dataset.spaceId });
-    // activateSpace will focus the right window; if it's this window update currentSpaceId
+    const spaceId = item.dataset.spaceId;
+    await sendMsgOnce({ type: 'ACTIVATE_SPACE', spaceId });
     await refreshState();
-    state.currentSpaceId = state.windowMap[String(state.myWindowId)] || null;
+    state.currentSpaceId = state.windowMap[String(state.myWindowId)] || spaceId;
+    chrome.storage.local.set({ lastSpaceId: spaceId }).catch(() => {});
     render();
   });
 
@@ -332,7 +345,9 @@ async function confirmNewSpace() {
   input.value = '';
   document.getElementById('new-space-form').classList.add('hidden');
   await refreshState();
-  state.currentSpaceId = state.windowMap[String(state.myWindowId)] || null;
+  const newSpaceId = res.space.id;
+  state.currentSpaceId = state.windowMap[String(state.myWindowId)] || newSpaceId;
+  chrome.storage.local.set({ lastSpaceId: newSpaceId }).catch(() => {});
   render();
 }
 
@@ -379,7 +394,11 @@ function bindBookmarkNameModal() {
 async function onBgMessage(msg) {
   if (msg.type === 'TABS_UPDATED' || msg.type === 'WINDOW_CLOSED' || msg.type === 'SPACE_ACTIVATED') {
     await refreshState();
-    state.currentSpaceId = state.windowMap[String(state.myWindowId)] || state.currentSpaceId;
+    state.currentSpaceId = state.windowMap[String(state.myWindowId)]
+      || (msg.type === 'SPACE_ACTIVATED' ? msg.spaceId : state.currentSpaceId);
+    if (msg.type === 'SPACE_ACTIVATED' && msg.spaceId) {
+      chrome.storage.local.set({ lastSpaceId: msg.spaceId }).catch(() => {});
+    }
     render();
   }
   if (msg.type === 'FOCUS_CHANGED') {

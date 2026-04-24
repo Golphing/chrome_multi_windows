@@ -12,11 +12,19 @@ let state = {
 async function init() {
   await refreshState();
 
-  // detect current window's space via chrome.windows.getCurrent()
   const win = await chrome.windows.getCurrent();
   if (win) {
     state.currentWindowId = win.id;
     state.currentSpaceId = state.windowMap[win.id] || null;
+  }
+
+  if (!state.currentSpaceId) {
+    const { lastSpaceId } = await chrome.storage.local.get('lastSpaceId');
+    if (lastSpaceId && state.spaces.some(s => s.id === lastSpaceId)) {
+      state.currentSpaceId = lastSpaceId;
+    } else if (state.spaces.length > 0) {
+      state.currentSpaceId = state.spaces[state.spaces.length - 1].id;
+    }
   }
 
   render();
@@ -220,7 +228,10 @@ function bindEvents() {
       if (!space) return;
       if (!confirm(`删除 Space "${space.name}"？此操作不可撤销。`)) return;
       await sendMsg({ type: 'DELETE_SPACE', spaceId });
-      if (state.currentSpaceId === spaceId) state.currentSpaceId = null;
+      if (state.currentSpaceId === spaceId) {
+        state.currentSpaceId = null;
+        chrome.storage.local.remove('lastSpaceId').catch(() => {});
+      }
       await refreshState();
       render();
       return;
@@ -229,6 +240,7 @@ function bindEvents() {
     const spaceId = chip.dataset.spaceId;
     await sendMsg({ type: 'ACTIVATE_SPACE', spaceId });
     state.currentSpaceId = spaceId;
+    chrome.storage.local.set({ lastSpaceId: spaceId }).catch(() => {});
     await refreshState();
     render();
   });
@@ -308,6 +320,7 @@ async function createNewSpace() {
     const res = await sendMsg({ type: 'CREATE_SPACE', name });
     if (res.error) { alert(res.error); return; }
     state.currentSpaceId = res.space.id;
+    chrome.storage.local.set({ lastSpaceId: res.space.id }).catch(() => {});
     input.value = '';
     document.getElementById('new-space-form').classList.add('hidden');
     await refreshState();
@@ -361,7 +374,14 @@ async function onServiceWorkerMessage(message) {
   switch (message.type) {
     case 'TABS_UPDATED':
     case 'WINDOW_CLOSED':
+      await refreshState();
+      render();
+      break;
     case 'SPACE_ACTIVATED':
+      state.currentSpaceId = message.spaceId;
+      if (message.spaceId) {
+        chrome.storage.local.set({ lastSpaceId: message.spaceId }).catch(() => {});
+      }
       await refreshState();
       render();
       break;

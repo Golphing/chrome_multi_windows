@@ -10,6 +10,16 @@
 
 const SPACES_KEY = 'spaces';
 
+// All compound read-modify-write operations go through this lock to prevent
+// concurrent writes from overwriting each other's changes. Without this,
+// e.g. createSpace + syncWindowTabs running concurrently can lose a new space.
+let _lock = Promise.resolve();
+function withLock(fn) {
+  const next = _lock.then(fn, fn);
+  _lock = next.then(() => {}, () => {});
+  return next;
+}
+
 async function getAllSpaces() {
   const result = await chrome.storage.local.get(SPACES_KEY);
   return result[SPACES_KEY] || [];
@@ -25,40 +35,48 @@ async function saveAllSpaces(spaces) {
 }
 
 async function createSpace(name) {
-  const spaces = await getAllSpaces();
-  if (spaces.some(s => s.name === name)) {
-    throw new Error(`Space "${name}" already exists`);
-  }
-  const space = {
-    id: crypto.randomUUID(),
-    name,
-    tabs: [],
-    bookmarks: [],
-  };
-  spaces.push(space);
-  await saveAllSpaces(spaces);
-  return space;
+  return withLock(async () => {
+    const spaces = await getAllSpaces();
+    if (spaces.some(s => s.name === name)) {
+      throw new Error(`Space "${name}" already exists`);
+    }
+    const space = {
+      id: crypto.randomUUID(),
+      name,
+      tabs: [],
+      bookmarks: [],
+    };
+    spaces.push(space);
+    await saveAllSpaces(spaces);
+    return space;
+  });
 }
 
 async function deleteSpace(id) {
-  const spaces = await getAllSpaces();
-  await saveAllSpaces(spaces.filter(s => s.id !== id));
+  return withLock(async () => {
+    const spaces = await getAllSpaces();
+    await saveAllSpaces(spaces.filter(s => s.id !== id));
+  });
 }
 
 async function updateSpace(id, updates) {
-  const spaces = await getAllSpaces();
-  const idx = spaces.findIndex(s => s.id === id);
-  if (idx === -1) return;
-  spaces[idx] = { ...spaces[idx], ...updates };
-  await saveAllSpaces(spaces);
-  return spaces[idx];
+  return withLock(async () => {
+    const spaces = await getAllSpaces();
+    const idx = spaces.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    spaces[idx] = { ...spaces[idx], ...updates };
+    await saveAllSpaces(spaces);
+    return spaces[idx];
+  });
 }
 
 async function reorderSpaces(orderedIds) {
-  const spaces = await getAllSpaces();
-  const map = Object.fromEntries(spaces.map(s => [s.id, s]));
-  const reordered = orderedIds.map(id => map[id]).filter(Boolean);
-  await saveAllSpaces(reordered);
+  return withLock(async () => {
+    const spaces = await getAllSpaces();
+    const map = Object.fromEntries(spaces.map(s => [s.id, s]));
+    const reordered = orderedIds.map(id => map[id]).filter(Boolean);
+    await saveAllSpaces(reordered);
+  });
 }
 
 export { getAllSpaces, getSpace, createSpace, deleteSpace, updateSpace, reorderSpaces };
